@@ -1,5 +1,7 @@
 package ibb.api.ontologyservice.ontology;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import ibb.api.ontologyservice.OntologyServiceConfig;
 import ibb.api.ontologyservice.ontology.impl.elasticsearch.OntologyElasticSearchImpl;
@@ -15,11 +17,15 @@ public class OntologyFactory {
     @Inject
     OntologyServiceConfig config;
 
+    @ConfigProperty(name = "ontology-elasticsearch-impl.sync-after-reindex")
+    boolean syncAfterReindex;
+
     public Ontology get(String ontologyName) {
         OntologyConfig ontologyConfig = config.ontologies().get(ontologyName);
         if (ontologyConfig == null) {
             return null;
         }
-        return new OntologyElasticSearchImpl(esClient, ontologyName, ontologyConfig);
+        return new OntologyElasticSearchImpl(esClient, ontologyName, ontologyConfig)
+            .syncAfterReindex(syncAfterReindex);
     }
 }

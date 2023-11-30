@@ -3,6 +3,7 @@ package ibb.api.ontologyservice.ontology.impl.elasticsearch;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._helpers.bulk.BulkIngester;
@@ -19,25 +20,27 @@ public class OntologyElasticSearchImpl implements Ontology {
     private ElasticsearchClient esClient;
     private String index;
     private String tempIndex;
+    private boolean syncAfterReindex;
 
     public OntologyElasticSearchImpl(ElasticsearchClient esClient, String ontologyName, OntologyConfig config) {
         this.esClient = esClient;
         this.name = ontologyName;
         this.config = config;
+        this.syncAfterReindex = false;
 
         this.index = "ontologies-" + name.toLowerCase().replace(' ', '-');
         this.tempIndex = index + "-temp";
     }
-    
-    @Override
-    public String getName() {
-        return name;
+
+    public OntologyElasticSearchImpl syncAfterReindex(boolean syncAfterReindex) {
+        this.syncAfterReindex = syncAfterReindex;
+        return this;
     }
 
     @Override
     public long countTerm() {
         try {
-            return esClient.count(r -> r.index(index)).count();
+            return esClient.count(r -> r.index(index).ignoreUnavailable(true)).count();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -46,10 +49,30 @@ public class OntologyElasticSearchImpl implements Ontology {
     @Override
     public void reindex() {
         Log.infof("Indexing ontology %s", name);
+        reindexWithoutBackup();
+    }
+    
+    public void reindexWithoutBackup() {
+        try {
+            deleteIndex(index);
+            bulkInsert(index);
+            if (syncAfterReindex) {
+                esClient.indices().refresh(r -> r.index(index).ignoreUnavailable(true));
+            }
+        } catch (Exception e) {
+            Log.errorf(e, "Failed to index ontology %s", name);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void reindexWithBackup() {
         try {
             deleteIndex(tempIndex);
             bulkInsert(tempIndex);
             moveIndex(tempIndex, index);
+            if (syncAfterReindex) {
+                esClient.indices().refresh(r -> r.index(index).ignoreUnavailable(true));
+            }
         } catch (Exception e) {
             Log.errorf(e, "Failed to index ontology %s", name);
             throw new RuntimeException(e);
@@ -72,7 +95,9 @@ public class OntologyElasticSearchImpl implements Ontology {
 
         InputStream inputStream = getClass().getClassLoader().getResourceAsStream(config.localFile());
         try (OBOParser parser = new OBOParser(inputStream)) {
+            AtomicLong counter = new AtomicLong(0);
             parser.stream().map(OntologyTerm::fromOBOStanza).forEach(term -> {
+                counter.getAndIncrement();
                 ingester.add(op -> op
                     .index(idx -> idx
                         .index(index)
@@ -81,6 +106,7 @@ public class OntologyElasticSearchImpl implements Ontology {
                     term.id
                 );
             });
+            Log.infof("Sent %d terms to Elasticsearch", counter.get());
         } 
         ingester.close();
     }

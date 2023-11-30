@@ -1,10 +1,10 @@
 package ibb.api.ontologyservice;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.hamcrest.Matchers.equalTo;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import ibb.api.ontologyservice.ontology.Ontology;
 import ibb.api.ontologyservice.ontology.OntologyFactory;
@@ -12,7 +12,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 
 @QuarkusTest
-public class OntologyElasticSearchImplTest {
+public class OntologyTest {
     
     @Inject
     OntologyServiceConfig config;
@@ -20,12 +20,10 @@ public class OntologyElasticSearchImplTest {
     @Inject
     OntologyFactory ontologyFactory;
 
-    @Test
-    public void shouldIndexGeneOntologySuccessfully() {
-        String ontologyName = "GO";
+    @ParameterizedTest
+    @CsvSource({"GO,47664", "TrOn,968"})
+    public void shouldIndexOnStartup(String ontologyName, Long expectedTermCount) {
         Ontology ontology = ontologyFactory.get(ontologyName);
-        assertNotNull(ontology, "Can not find ontology " + ontologyName);
-        ontology.reindex();
-        assertThat(ontology.countTerm(), greaterThan(0L));
+        assertThat(ontology.countTerm(), equalTo(expectedTermCount));
     }
 }

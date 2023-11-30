@@ -1,26 +1,34 @@
 package ibb.api.ontologyservice;
 
-import java.util.Map;
-
-import org.jboss.resteasy.reactive.RestPath;
-
 import ibb.api.ontologyservice.ontology.Ontology;
 import ibb.api.ontologyservice.ontology.OntologyFactory;
+import io.quarkus.logging.Log;
+import io.quarkus.runtime.StartupEvent;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
 
-@Path("/ontologies")
+@ApplicationScoped
 public class OntologyService {
+
+    @Inject
+    OntologyServiceConfig config;
 
     @Inject
     OntologyFactory ontologyFactory;
 
-    @GET
-    @Path("/{ontologyName}")
-    public Map<String, Object> getOntologyOverview(@RestPath String ontologyName) {
-        Ontology ontology = ontologyFactory.get(ontologyName);
-        long termCount = ontology.countTerm();
-        return Map.of("name", ontologyName, "termCount", termCount);
+    void init(@Observes StartupEvent ev) {
+        if (config.startup().noActions()) {
+            return;
+        }
+        config.ontologies().keySet().stream().forEach(ontologyName -> {
+            Ontology ontology = ontologyFactory.get(ontologyName);
+            long count = ontology.countTerm();
+            if (count == 0) {
+                ontology.reindex();
+            } else {
+                Log.infof("Ontology %s already indexed with %d terms", ontologyName, count);
+            }
+        });
     }
 }
