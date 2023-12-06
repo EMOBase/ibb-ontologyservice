@@ -14,6 +14,7 @@ class BulkIndexListener implements BulkListener<String> {
     @Override
     public void afterBulk(long executionId, BulkRequest request, List<String> contexts, BulkResponse response) {
         if (response.errors()) {
+            Log.errorf("Bulk request %d failed: %d/%d", executionId, response.errors(), contexts.size());
             throw new PartialBulkException();
         }
     }

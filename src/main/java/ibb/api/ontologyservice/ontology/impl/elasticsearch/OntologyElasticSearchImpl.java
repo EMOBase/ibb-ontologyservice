@@ -49,7 +49,18 @@ public class OntologyElasticSearchImpl implements Ontology {
     @Override
     public void reindex() {
         Log.infof("Indexing ontology %s", name);
-        reindexWithoutBackup();
+        // reindexWithoutBackup();
+        reindexWithBackup();
+    }
+
+    @Override
+    public QueryResult<Suggestion> suggest(String query, long from, int size) {
+        return null;
+    }
+
+    @Override
+    public QueryResult<OntologyTerm> search(String query, long from, int size) {
+        return null;
     }
     
     public void reindexWithoutBackup() {
@@ -57,7 +68,7 @@ public class OntologyElasticSearchImpl implements Ontology {
             deleteIndex(index);
             bulkInsert(index);
             if (syncAfterReindex) {
-                esClient.indices().refresh(r -> r.index(index).ignoreUnavailable(true));
+                refreshIndex(index);
             }
         } catch (Exception e) {
             Log.errorf(e, "Failed to index ontology %s", name);
@@ -65,13 +76,18 @@ public class OntologyElasticSearchImpl implements Ontology {
         }
     }
 
+    /**
+     * Index into a temporary index before moving to the final index.
+     * This is to avoid loss of data if the bulk insert fails.
+     */
     public void reindexWithBackup() {
         try {
             deleteIndex(tempIndex);
             bulkInsert(tempIndex);
+            refreshIndex(tempIndex);
             moveIndex(tempIndex, index);
             if (syncAfterReindex) {
-                esClient.indices().refresh(r -> r.index(index).ignoreUnavailable(true));
+                refreshIndex(index);
             }
         } catch (Exception e) {
             Log.errorf(e, "Failed to index ontology %s", name);
@@ -125,5 +141,9 @@ public class OntologyElasticSearchImpl implements Ontology {
 
     private void deleteIndex(String index) throws IOException {
         esClient.indices().delete(r -> r.index(index).ignoreUnavailable(true));
+    }
+
+    private void refreshIndex(String index) throws IOException {
+        esClient.indices().refresh(r -> r.index(index).ignoreUnavailable(true));
     }
 }

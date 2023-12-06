@@ -7,8 +7,10 @@ import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.Path;
 
 @ApplicationScoped
+@Path("/ontologies")
 public class OntologyService {
 
     @Inject

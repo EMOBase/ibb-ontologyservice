@@ -13,15 +13,13 @@ import jakarta.inject.Inject;
 
 @QuarkusTest
 public class OntologyTest {
-    
-    @Inject
-    OntologyServiceConfig config;
 
     @Inject
     OntologyFactory ontologyFactory;
 
     @ParameterizedTest
-    @CsvSource({"GO,47664", "TrOn,968"})
+    @CsvSource({"TrOn,968", "GO,47664"})
+    // @CsvSource({"TrOn,968"})
     public void shouldIndexOnStartup(String ontologyName, Long expectedTermCount) {
         Ontology ontology = ontologyFactory.get(ontologyName);
         assertThat(ontology.countTerm(), equalTo(expectedTermCount));
