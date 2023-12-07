@@ -19,9 +19,8 @@ public class OntologyTest {
 
     @ParameterizedTest
     @CsvSource({"TrOn,968", "GO,47664"})
-    // @CsvSource({"TrOn,968"})
     public void shouldIndexOnStartup(String ontologyName, Long expectedTermCount) {
         Ontology ontology = ontologyFactory.get(ontologyName);
-        assertThat(ontology.countTerm(), equalTo(expectedTermCount));
+        assertThat(ontology.count(), equalTo(expectedTermCount));
     }
 }

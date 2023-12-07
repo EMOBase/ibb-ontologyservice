@@ -1,20 +1,9 @@
 package ibb.api.ontologyservice.ontology;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface Ontology {
-    public static class Suggestion {
-        /**
-         * The term that can be used as query for {@code search}
-         */
-        public String term;
-
-        /**
-         * The number of hits that would be returned by {@code search}
-         * if {@code term} was used as query
-         */
-        public long hits;
-    }
 
     public static class QueryResult<T> {
 
@@ -27,13 +16,12 @@ public interface Ontology {
     }
 
     void reindex();
-    long countTerm();
+    long count();
+    OntologyTerm get(String id);
+    List<OntologyTerm> getChildren(String id, List<String> predicates);
+    QueryResult<OntologyTerm> search(String query, String aspect, int from, int size);
 
-    /**
-     * @param query
-     * @param from
-     * @return a list of suggestions that can be used as query for {@code search}
-     */
-    QueryResult<Suggestion> suggest(String query, long from, int size);
-    QueryResult<OntologyTerm> search(String query, long from, int size);
+    default Optional<OntologyTerm> getOptional(String id) {
+        return Optional.ofNullable(get(id));
+    }
 }

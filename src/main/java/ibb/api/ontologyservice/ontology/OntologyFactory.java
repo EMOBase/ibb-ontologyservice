@@ -1,5 +1,7 @@
 package ibb.api.ontologyservice.ontology;
 
+import java.util.Optional;
+
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
@@ -27,5 +29,9 @@ public class OntologyFactory {
         }
         return new OntologyElasticSearchImpl(esClient, ontologyName, ontologyConfig)
             .syncAfterReindex(syncAfterReindex);
+    }
+
+    public Optional<Ontology> getOptional(String ontologyName) {
+        return Optional.ofNullable(get(ontologyName));
     }
 }
