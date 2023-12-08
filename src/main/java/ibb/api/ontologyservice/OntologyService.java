@@ -1,6 +1,7 @@
 package ibb.api.ontologyservice;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.jboss.resteasy.reactive.RestPath;
 import org.jboss.resteasy.reactive.RestQuery;
@@ -42,6 +43,15 @@ public class OntologyService {
                 Log.infof("Ontology %s already indexed with %d terms", ontologyName, count);
             }
         });
+    }
+
+    @GET
+    @Path("/ontologies")
+    public Map<String, Long> getSummary() {
+        return config.ontologies().keySet().stream().collect(Collectors.toMap(
+            ontologyName -> ontologyName,
+            ontologyName -> ontologyFactory.get(ontologyName).count()
+        ));
     }
 
     @GET
