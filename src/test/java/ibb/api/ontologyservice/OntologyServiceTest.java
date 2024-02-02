@@ -1,6 +1,7 @@
 package ibb.api.ontologyservice;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.hasItems;
 
 import org.junit.jupiter.api.Test;
@@ -36,13 +37,14 @@ public class OntologyServiceTest {
         RestAssured.given()
             .when().get("/ontologies/GO/terms/GO:0035287")
             .then().statusCode(200)
-            .body("name", equalTo("head segmentation"));
+            .body("name", everyItem(equalTo("head segmentation")));
     }
 
     @Test
     public void getShouldWorkWhenTermNotFound() {
         RestAssured.given()
             .when().get("/ontologies/GO/terms/GO:0000000")
-            .then().statusCode(404);
+            .then().statusCode(200)
+            .body("size()", equalTo(0));
     }
 }

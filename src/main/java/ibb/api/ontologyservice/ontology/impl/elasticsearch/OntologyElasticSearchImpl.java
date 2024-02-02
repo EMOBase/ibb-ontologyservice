@@ -25,6 +25,8 @@ public class OntologyElasticSearchImpl implements Ontology {
     private String tempIndex;
     private boolean syncAfterReindex;
 
+    private static final int MAX_RESULTS = 10000;
+
     public OntologyElasticSearchImpl(ElasticsearchClient esClient, String ontologyName, OntologyConfig config) {
         this.esClient = esClient;
         this.name = ontologyName;
@@ -191,5 +193,18 @@ public class OntologyElasticSearchImpl implements Ontology {
 
     private void refreshIndex(String index) throws IOException {
         esClient.indices().refresh(r -> r.index(index).ignoreUnavailable(true));
+    }
+
+    @Override
+    public List<OntologyTerm> get(List<String> ids) {
+        try {
+            return esClient.search(s -> s
+                .index(index)
+                .size(MAX_RESULTS)
+                .query(q -> q.ids(i -> i.values(ids)))
+                , OntologyTerm.class).hits().hits().stream().map(h -> h.source()).toList();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

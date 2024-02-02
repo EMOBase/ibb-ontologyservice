@@ -1,5 +1,6 @@
 package ibb.api.ontologyservice;
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -65,13 +66,18 @@ public class OntologyService {
     }
 
     @GET
-    @Path("/ontologies/{ontologyName}/terms/{id}")
-    public OntologyTerm get(@RestPath String ontologyName, @RestPath String id) {
+    @Path("/ontologies/{ontologyName}/terms/{ids}")
+    public List<OntologyTerm> get(@RestPath String ontologyName, @RestPath("ids") String commaSeparatedIds) {
         Ontology ontology = ontologyFactory.getOptional(ontologyName).orElseThrow(
             () -> new NotFoundException("Ontology " + ontologyName + " not found")
         );
-        return ontology.getOptional(id).orElseThrow(() -> new NotFoundException("Term " + id + " not found"));
+        List<String> ids = List.of(commaSeparatedIds.split(","));
+        if (ids.isEmpty()) {
+            return List.of();
+        }
+        return ontology.get(ids);
     }
+
 
     @GET
     @Path("/ontologies/{ontologyName}/search")

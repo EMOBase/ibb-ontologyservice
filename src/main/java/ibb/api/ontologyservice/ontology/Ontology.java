@@ -18,6 +18,7 @@ public interface Ontology {
     void reindex();
     long count();
     OntologyTerm get(String id);
+    List<OntologyTerm> get(List<String> ids);
     List<OntologyTerm> getChildren(String id, List<String> predicates);
     QueryResult<OntologyTerm> search(String query, String aspect, int from, int size);
 
