@@ -142,7 +142,7 @@ public class OntologyElasticSearchImpl implements Ontology {
             .mappings(m -> m
                 .properties("id", id -> id.keyword(opts -> opts))
                 .properties("name", name -> name.searchAsYouType(opts -> opts))
-                .properties("aspect", aspect -> aspect.keyword(opts -> opts))
+                .properties("aspects", aspect -> aspect.keyword(opts -> opts))
                 .properties("definition", definition -> definition.text(opts -> opts.index(false)))
                 .properties("obsolete", obsolete -> obsolete.boolean_(opts -> opts))
                 .properties("relations", relations -> relations.object(o -> o

@@ -20,7 +20,7 @@ public class OntologyTerm {
 
     public String id;
     public String name;
-    public String aspect;
+    public List<String> aspects;
     public String definition;
 
     public boolean obsolete;
@@ -31,7 +31,11 @@ public class OntologyTerm {
         OntologyTerm term = new OntologyTerm();
         term.id = stanza.getId();
         term.name = stanza.getAttribute("name");
-        term.aspect = stanza.getAttributeOptional("namespace").orElse(stanza.getAttribute("subset"));
+        
+        term.aspects = new ArrayList<>();
+        term.aspects.addAll(stanza.getAttributes("namespace"));
+        term.aspects.addAll(stanza.getAttributes("subset"));
+
         term.definition = stanza.getAttribute("def");
         term.obsolete = stanza.getAttributeOptional("is_obsolete")
             .filter(value -> "true".equals(value))

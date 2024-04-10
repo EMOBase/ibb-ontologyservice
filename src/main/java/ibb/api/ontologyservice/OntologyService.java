@@ -78,7 +78,6 @@ public class OntologyService {
         return ontology.get(ids);
     }
 
-
     @GET
     @Path("/ontologies/{ontologyName}/search")
     public QueryResult<OntologyTerm> search(
