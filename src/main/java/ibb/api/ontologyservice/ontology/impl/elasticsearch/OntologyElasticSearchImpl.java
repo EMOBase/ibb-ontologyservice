@@ -33,7 +33,7 @@ public class OntologyElasticSearchImpl implements Ontology {
         this.config = config;
         this.syncAfterReindex = false;
 
-        this.index = "ontologies-" + name.toLowerCase().replace(' ', '-');
+        this.index = "ontologyservice-ontologies-" + name.toLowerCase().replace(' ', '-');
         this.tempIndex = index + "-temp";
     }
 
