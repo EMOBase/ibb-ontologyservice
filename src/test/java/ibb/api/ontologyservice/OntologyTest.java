@@ -3,6 +3,8 @@ package ibb.api.ontologyservice;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
+import java.io.IOException;
+
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -18,8 +20,8 @@ public class OntologyTest {
     OntologyFactory ontologyFactory;
 
     @ParameterizedTest
-    @CsvSource({"TrOn,968", "GO,47664"})
-    public void shouldIndexOnStartup(String ontologyName, Long expectedTermCount) {
+    @CsvSource({"TrOn,965", "GO,47658"})
+    public void shouldIndexOnStartup(String ontologyName, Long expectedTermCount) throws IOException {
         Ontology ontology = ontologyFactory.get(ontologyName);
         assertThat(ontology.count(), equalTo(expectedTermCount));
     }

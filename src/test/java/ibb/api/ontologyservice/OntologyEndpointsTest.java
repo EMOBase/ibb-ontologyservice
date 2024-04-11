@@ -12,10 +12,10 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
 
 @QuarkusTest
-public class OntologyServiceTest {
+public class OntologyEndpointsTest {
 
     @ParameterizedTest
-    @CsvSource({"TrOn,968", "GO,47664"})
+    @CsvSource({"TrOn,965", "GO,47658"})
     public void countShouldWork(String ontologyName, Long expectedTermCount) {
         RestAssured.given()
             .when().get("/ontologies/" + ontologyName + "/count")

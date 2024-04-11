@@ -1,9 +1,10 @@
 package ibb.api.ontologyservice.ontology;
 
+import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 public interface Ontology {
+    public static final int MAX_SEARCH_RESULTS = 10000;
 
     public static class QueryResult<T> {
 
@@ -15,14 +16,10 @@ public interface Ontology {
         public List<T> data;
     }
 
-    void reindex();
-    long count();
-    OntologyTerm get(String id);
-    List<OntologyTerm> get(List<String> ids);
-    List<OntologyTerm> getChildren(String id, List<String> predicates);
-    QueryResult<OntologyTerm> search(String query, String aspect, int from, int size);
-
-    default Optional<OntologyTerm> getOptional(String id) {
-        return Optional.ofNullable(get(id));
-    }
+    void load() throws IOException;
+    long count() throws IOException;
+    List<Node> getByIds(List<String> ids) throws IOException;
+    List<Node> getRoots() throws IOException;
+    List<Edge> getChildren(String id) throws IOException;
+    QueryResult<Node> search(String query, List<String> aspects, int from, int size) throws IOException;
 }
