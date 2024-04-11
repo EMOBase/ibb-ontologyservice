@@ -95,11 +95,11 @@ public class OntologyEndpoints {
     public QueryResult<Node> search(
             @RestPath String ontologyName,
             @RestQuery @NotBlank String query,
-            @RestQuery List<String> aspects,
+            @RestQuery List<String> subsets,
             @RestQuery @DefaultValue("0") int from,
             @RestQuery @DefaultValue("20") int size) throws IOException {
         Ontology ontology = ontologyFactory.getOptional(ontologyName).orElseThrow(
                 () -> new NotFoundException("Ontology " + ontologyName + " not found"));
-        return ontology.search(query, aspects, from, size);
+        return ontology.search(query, subsets, from, size);
     }
 }

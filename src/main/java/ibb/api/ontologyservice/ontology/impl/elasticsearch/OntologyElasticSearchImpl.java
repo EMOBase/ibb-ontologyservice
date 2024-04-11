@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._helpers.bulk.BulkIngester;
+import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import ibb.api.ontologyservice.ontology.Edge;
@@ -125,13 +126,19 @@ public class OntologyElasticSearchImpl implements Ontology {
     }
 
     @Override
-    public QueryResult<Node> search(String query, List<String> aspects, int from, int size) throws IOException {
+    public QueryResult<Node> search(String query, List<String> subsets, int from, int size) throws IOException {
         SearchResponse<Node> response = esClient.search(s -> s
                 .index(nodeAlias)
                 .from(from)
                 .size(size)
-                .query(q -> q
-                        .matchPhrasePrefix(m -> m.field("name").query(query))),
+                .query(q -> q.bool(b ->  {
+                    b.must(m -> m.matchPhrasePrefix(mm -> mm.field("name").query(query)));
+                    if (subsets != null && !subsets.isEmpty()) {
+                        List<FieldValue> values = subsets.stream().map(FieldValue::of).toList();
+                        b.filter(f -> f.terms(t -> t.field("subsets").terms(tt -> tt.value(values))));
+                    }
+                    return b;
+                })),
                 Node.class);
 
         QueryResult<Node> result = new QueryResult<>();
