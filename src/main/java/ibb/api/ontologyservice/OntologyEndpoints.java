@@ -78,7 +78,7 @@ public class OntologyEndpoints {
     @Path("/ontologies/{ontologyName}/terms/{ids}")
     public List<Node> get(
             @RestPath String ontologyName,
-            String commaSeparatedIds) throws IOException {
+            @RestPath("ids") String commaSeparatedIds) throws IOException {
 
         List<String> ids = List.of(commaSeparatedIds.split(",")).stream()
             .map(String::trim)
