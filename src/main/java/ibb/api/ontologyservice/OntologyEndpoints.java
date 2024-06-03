@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.jboss.resteasy.reactive.RestPath;
 import org.jboss.resteasy.reactive.RestQuery;
 
@@ -33,6 +34,7 @@ public class OntologyEndpoints {
 
     @GET
     @Path("/ontologies")
+    @Operation(summary = "Get summary of all available phenotypes")
     public Map<String, Long> getSummary() throws IOException {
         return config.ontologies().keySet().stream().collect(Collectors.toMap(
                 ontologyName -> ontologyName,
@@ -49,10 +51,11 @@ public class OntologyEndpoints {
     }
 
     @POST
+    @Operation(summary = "Reload ontology", hidden = true)
     @Path("/ontologies/{ontologyName}/reload")
     public void reload(@RestPath String ontologyName) throws IOException {
         Ontology ontology = ontologyFactory.getOptional(ontologyName).orElseThrow(
-            () -> new NotFoundException("Ontology " + ontologyName + " not found"));
+                () -> new NotFoundException("Ontology " + ontologyName + " not found"));
         ontology.load();
     }
 
@@ -76,14 +79,15 @@ public class OntologyEndpoints {
 
     @GET
     @Path("/ontologies/{ontologyName}/terms/{ids}")
+    @Operation(summary = "Get details of terms by their IDs, separated by comma")
     public List<Node> get(
             @RestPath String ontologyName,
             @RestPath("ids") String commaSeparatedIds) throws IOException {
 
         List<String> ids = List.of(commaSeparatedIds.split(",")).stream()
-            .map(String::trim)
-            .filter(id -> !id.isEmpty())
-            .collect(Collectors.toList());
+                .map(String::trim)
+                .filter(id -> !id.isEmpty())
+                .collect(Collectors.toList());
 
         Ontology ontology = ontologyFactory.getOptional(ontologyName).orElseThrow(
                 () -> new NotFoundException("Ontology " + ontologyName + " not found"));
