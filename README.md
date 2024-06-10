@@ -1,37 +1,27 @@
-# ontologyservice
+# Ontology Service for the iBeetle-Base project
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+## Development
 
-If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
+Prerequisites:
+- [quarkus-cli](https://quarkus.io/guides/cli-tooling) is installed.
 
-## Running the application in dev mode
-
-You can run your application in dev mode that enables live coding using:
-```shell script
+To run the application in dev mode, run:
+```bash
 quarkus dev
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at http://localhost:8080/q/dev/.
+These commands might be useful after a long time not working on this project:
 
-## Packaging and running the application
+- `quarkus update`: Update all quarkus dependencies to latest versions
+- `./mvnw -N wrapper:wrapper -Dmaven=3.8.7`: Update maven wrapper to new version, in this case `3.8.7`
 
-```shell script
-quarkus build -Dquarkus.container-image.build=true
+## Deployment
+
+To build docker image:
+
+```
+quarkus build -Dquarkus.container-image.build=true -DskipTests
 ```
 
-## Creating a native executable
-
-You can create a native executable using: 
-```shell script
-./mvnw package -Dnative
-```
-
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using: 
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
-```
-
-You can then execute your native executable with: `./target/ontologyservice-1.0.0-SNAPSHOT-runner`
-
-If you want to learn more about building native executables, please consult https://quarkus.io/guides/maven-tooling.
-
+Prerequisites before running the docker container:
+- An elasticsearch instance is accessible at `es:9200`.
