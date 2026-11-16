@@ -17,7 +17,8 @@ These commands might be useful after a long time not working on this project:
 
 ## Deployment
 
-Images are published to GHCR by `.github/workflows/publish.yml`:
+Images are published to GHCR by `.github/workflows/publish.yml` for
+`linux/amd64` and `linux/arm64`:
 
 ```
 ghcr.io/emobase/ibb-ontologyservice:<tag>
