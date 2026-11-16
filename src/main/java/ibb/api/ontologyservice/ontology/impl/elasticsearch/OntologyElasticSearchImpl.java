@@ -49,12 +49,16 @@ public class OntologyElasticSearchImpl implements Ontology {
                 .mappings(mapping));
     }
 
-    public OntologyElasticSearchImpl(ElasticsearchClient esClient, String ontologyName, OntologyConfig config) {
+    public OntologyElasticSearchImpl(
+            ElasticsearchClient esClient,
+            String ontologyName,
+            OntologyConfig config,
+            String indexPrefix) {
         this.esClient = esClient;
         this.name = ontologyName;
         this.config = config;
 
-        String prefix = "ontologyservice-ontologies-" + name.toLowerCase().replace(' ', '_');
+        String prefix = indexPrefix + "-ontologies-" + name.toLowerCase().replace(' ', '_');
         this.nodeAlias = prefix + "-nodes";
         this.edgeAlias = prefix + "-edges";
     }

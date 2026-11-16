@@ -17,11 +17,19 @@ These commands might be useful after a long time not working on this project:
 
 ## Deployment
 
-To build docker image:
+Images are published to GHCR by `.github/workflows/publish.yml`:
 
 ```
-quarkus build -Dquarkus.container-image.build=true -DskipTests
+ghcr.io/emobase/ibb-ontologyservice:<tag>
 ```
 
-Prerequisites before running the docker container:
-- An elasticsearch instance is accessible at `es:9200`.
+To build locally:
+
+```bash
+./mvnw package -DskipTests
+docker build -f src/main/docker/Dockerfile.jvm -t emobase/ibb-ontologyservice:local .
+```
+
+The container needs an Elasticsearch instance at `es:9200`. Set
+`ONTOLOGYSERVICE_ELASTICSEARCH_INDEX_PREFIX` to namespace the indices and
+aliases it creates; the default is `ontologyservice`.

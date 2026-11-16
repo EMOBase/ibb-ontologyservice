@@ -22,7 +22,11 @@ public class OntologyFactory {
         if (ontologyConfig == null) {
             return null;
         }
-        return new OntologyElasticSearchImpl(esClient, ontologyName, ontologyConfig);
+        return new OntologyElasticSearchImpl(
+                esClient,
+                ontologyName,
+                ontologyConfig,
+                config.elasticsearch().indexPrefix());
     }
 
     public Optional<Ontology> getOptional(String ontologyName) {
